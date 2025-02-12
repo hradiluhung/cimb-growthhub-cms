@@ -2,9 +2,9 @@ import Image from 'next/image'
 import React from 'react'
 
 const SIZES = {
-  sm: { width: 80, height: 40 },
-  md: { width: 160, height: 80 },
-  lg: { width: 320, height: 160 },
+  sm: { width: 80, height: 20 },
+  md: { width: 160, height: 40 },
+  lg: { width: 320, height: 80 },
 } as const
 
 export default function Logo({

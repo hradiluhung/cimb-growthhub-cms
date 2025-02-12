@@ -2,7 +2,7 @@
 import { usePathname, useRouter } from 'next/navigation'
 import Logo from './logo'
 import Link from 'next/link'
-import { BookText, Home, LogOut, Users } from 'lucide-react'
+import { BookText, Home, LogOut, User, Users } from 'lucide-react'
 import { Button } from '../ui/button'
 
 const navItems = {
@@ -25,6 +25,11 @@ const navItems = {
   ],
   hr: [
     {
+      name: 'Dashboard',
+      icon: Home,
+      link: '/hr',
+    },
+    {
       name: 'Trainings',
       icon: BookText,
       link: '/hr/trainings',
@@ -34,8 +39,9 @@ const navItems = {
 
 export default function Sidebar() {
   const router = useRouter()
+  const pathName = usePathname()
   // TODO: Get user role from context
-  const role = 'admin'
+  const role: 'admin' | 'hr' = pathName.includes('admin') ? 'admin' : 'hr'
 
   const onLogout = () => {
     // TODO: Implement logout
@@ -44,14 +50,18 @@ export default function Sidebar() {
 
   return (
     <div className="p-2">
-      <div className="h-full bg-primary w-64 rounded-3xl p-4 flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
+      <div className="h-full bg-primary w-64 rounded-3xl p-4 flex flex-col gap-8">
+        <div className="flex flex-col gap-2 border-b border-white/20 pb-4">
           <Logo size="md" invert />
-          <p className="text-white font-semibold">
-            {role === 'admin' ? 'Admin' : role === 'hr' ? 'HR' : null}
-          </p>
+          <div className="flex items-center gap-1 text-white/60">
+            <User className="size-5 " />
+            {/* TODO: Render dynamic user role */}
+            <p className="font-semibold text-sm">
+              {(role as 'admin' | 'hr') === 'hr' ? 'Human Resource' : 'Admin'}
+            </p>
+          </div>
         </div>
-        <NavItems />
+        <NavItems role={role} />
 
         <div className="mt-auto">
           <Button
@@ -68,12 +78,11 @@ export default function Sidebar() {
   )
 }
 
-function NavItems() {
+function NavItems({ role }: { role: 'admin' | 'hr' }) {
   const pathname = usePathname()
-  const role = 'admin'
 
   return (
-    <nav className="mt-8 flex flex-col gap-2">
+    <nav className="flex flex-col gap-2">
       {navItems[role].map((item, index) => (
         <Link
           key={index}

@@ -1,4 +1,4 @@
-import DashboardCards from '@/components/admin/dashboard-cards'
+import DashboardCards from '@/components/admin/admin-dashboard-cards'
 import React from 'react'
 
 export default function DashboardAdminPage() {
