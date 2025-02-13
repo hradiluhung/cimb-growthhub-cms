@@ -19,7 +19,7 @@ export default function TrainingCard({ training }: { training: Training }) {
         <div className="mt-1 text-gray-500">
           <div className="flex items-center gap-1">
             <Mic2 className="size-4" />
-            <p className="text-xs">{training.namaTrainer}</p>
+            <p className="text-xs">{training.nama_trainer}</p>
           </div>
           <div className="flex items-center gap-2 mt-2 flex-wrap">
             <div className="flex items-center gap-1">

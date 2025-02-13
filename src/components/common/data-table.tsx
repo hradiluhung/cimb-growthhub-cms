@@ -1,6 +1,6 @@
 'use client'
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -62,6 +62,45 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
               </TableCell>
             </TableRow>
           )}
+        </TableBody>
+      </Table>
+    </div>
+  )
+}
+
+DataTable.Skeleton = function TableSkeleton<TData>({
+  columns,
+  rows,
+}: {
+  columns: ColumnDef<TData>[]
+  rows: number
+}) {
+  return (
+    <div className="rounded-xl border">
+      <Table>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            {columns.map((column, colIndex) => (
+              <TableHead key={colIndex}>
+                {flexRender(column.header, {
+                  column: {} as any,
+                  header: {} as any,
+                  table: {} as any,
+                })}
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {Array.from({ length: rows }).map((_, rowIndex) => (
+            <TableRow key={rowIndex} className="hover:bg-transparent">
+              {columns.map((_, colIndex) => (
+                <TableCell key={colIndex}>
+                  <Skeleton className="w-full h-4" />
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </div>

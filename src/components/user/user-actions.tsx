@@ -4,10 +4,10 @@ import { Button } from '../ui/button'
 import { Edit2, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 
-export default function UserActions({ user }: { user: Profile }) {
+export default function UserActions({ user }: { user: User }) {
   const deleteHandler = async () => {
     // TODO: Implement delete user
-    console.log(`Delete user ${user.nama}`)
+    console.log(`Delete user ${user.profile?.nama}`)
   }
 
   return (
@@ -18,7 +18,7 @@ export default function UserActions({ user }: { user: Profile }) {
         </Link>
       </Button>
       <Button size="sm" variant="ghost" onClick={deleteHandler}>
-        <Trash2 className="size-4 text-red-500" />
+        <Trash2 className="size-4 text-primary" />
       </Button>
     </div>
   )

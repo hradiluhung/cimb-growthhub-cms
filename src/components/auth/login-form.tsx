@@ -1,8 +1,11 @@
 'use client'
+import { useToast } from '@/hooks/use-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
-import React from 'react'
+import { signIn } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { Button } from '../ui/button'
 import {
   Form,
   FormControl,
@@ -13,10 +16,8 @@ import {
   FormMessage,
 } from '../ui/form'
 import { Input } from '../ui/input'
-import { Button } from '../ui/button'
-import { useRouter } from 'next/navigation'
-import { login } from '@/lib/actions/auth/login'
-import { useToast } from '@/hooks/use-toast'
+import { useState } from 'react'
+import { Loader2 } from 'lucide-react'
 
 const loginSchema = z.object({
   username: z.string().nonempty({
@@ -28,6 +29,7 @@ const loginSchema = z.object({
 export default function LoginForm() {
   const { toast } = useToast()
   const router = useRouter()
+  const [loading, setLoading] = useState(false)
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -39,20 +41,23 @@ export default function LoginForm() {
 
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     try {
+      setLoading(true)
       const { username, password } = values
 
-      // TOOD: Implement login
-      const response = await login(username, password)
-
-      toast({
-        title: 'Berhasil login',
-        description: 'Selamat datang di aplikasi',
+      const response = await signIn('credentials', {
+        username,
+        password,
+        redirect: false,
       })
 
-      if (response.role === 'admin') {
-        router.push('/admin')
-      } else {
-        router.push('/hr')
+      console.log(response)
+
+      if (response?.ok) {
+        router.refresh()
+        toast({
+          title: 'Berhasil login',
+          description: 'Selamat datang di aplikasi',
+        })
       }
     } catch (error: any) {
       toast({
@@ -60,6 +65,8 @@ export default function LoginForm() {
         description: error.message,
         variant: 'destructive',
       })
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -96,7 +103,10 @@ export default function LoginForm() {
               </FormItem>
             )}
           />
-          <Button type="submit">Login</Button>
+          <Button type="submit" disabled={loading} className="flex items-center gap-1">
+            {loading && <Loader2 className="animate-spin size-5" />}
+            Login
+          </Button>
         </form>
       </Form>
     </div>

@@ -21,12 +21,18 @@ import {
 import { Input } from '../ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
+import { useEffect, useState } from 'react'
+import { getAllRoles } from '@/lib/actions/users/role/get-all-roles'
 
 const userSchema = z.object({
+  username: z.string().nonempty({
+    message: 'Username harus diisi',
+  }),
+  password: z.string().nonempty({ message: 'Password harus diisi' }),
   nama: z.string().nonempty({
     message: 'Nama tidak boleh kosong',
   }),
-  tanggalLahir: z.date({
+  tgl_lahir: z.date({
     required_error: 'Tanggal lahir tidak boleh kosong',
   }),
   pekerjaan: z.string().nonempty({
@@ -35,7 +41,7 @@ const userSchema = z.object({
   perusahaan: z.string().nonempty({
     message: 'Perusahaan tidak boleh kosong',
   }),
-  noTelp: z
+  no_telepon: z
     .string()
     .nonempty({
       message: 'Nomor telepon tidak boleh kosong',
@@ -46,14 +52,11 @@ const userSchema = z.object({
   email: z.string().email({
     message: 'Email tidak valid',
   }),
-  username: z.string().nonempty({
-    message: 'Username harus diisi',
-  }),
-  role: z
-    .enum(['hr', 'karyawan', 'trainee'], {
+  role_id: z
+    .string({
       required_error: 'Role tidak boleh kosong',
     })
-    .refine((val) => val !== undefined, {
+    .nonempty({
       message: 'Role tidak boleh kosong',
     }),
 })
@@ -65,45 +68,58 @@ export default function UserForm() {
   const form = useForm<z.infer<typeof userSchema>>({
     resolver: zodResolver(userSchema),
     defaultValues: {
+      username: '',
+      password: '',
       nama: '',
-      tanggalLahir: undefined,
+      tgl_lahir: undefined,
       pekerjaan: '',
       perusahaan: '',
-      noTelp: '',
+      no_telepon: '',
       email: '',
-      username: '',
-      role: undefined,
+      role_id: undefined,
     },
   })
+  const [roles, setRoles] = useState<Role[]>([])
 
-  const roleOptions = [
-    { label: 'HR', value: 'hr' },
-    { label: 'Karyawan', value: 'karyawan' },
-    { label: 'Trainee', value: 'trainee' },
-  ]
+  const roleOptions = roles.map((role) => ({
+    label:
+      role.name.toLowerCase() === 'hr'
+        ? 'HR'
+        : role.name.charAt(0).toUpperCase() + role.name.slice(1).toLowerCase(),
+    value: role.id,
+  }))
 
   async function onSubmit(values: z.infer<typeof userSchema>) {
     try {
-      const { nama, tanggalLahir, pekerjaan, perusahaan, noTelp, email, username, role } = values
+      const { nama, tgl_lahir, pekerjaan, perusahaan, no_telepon, email, username, role_id, password } =
+        values
 
-      const message = await createUser({
+      console.log('values', values)
+
+      const { success, message } = await createUser({
         nama,
-        tanggalLahir,
+        password,
+        tgl_lahir,
         pekerjaan,
         perusahaan,
-        noTelp,
+        no_telepon,
         email,
         username,
-        role,
+        role_id,
       })
 
-      toast({
-        title: 'Berhasil',
-        description: message,
-      })
+      if (success) {
+        toast({
+          title: 'Berhasil',
+          description: message,
+        })
 
-      router.push('/admin/users')
+        router.push('/admin/users')
+      } else {
+        throw new Error(message)
+      }
     } catch (error: any) {
+      console.log(error.message)
       toast({
         title: 'Gagal',
         description: error.message,
@@ -112,24 +128,29 @@ export default function UserForm() {
     }
   }
 
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const data = await getAllRoles()
+        const filteredData = data.filter((role) => role.name !== 'admin')
+
+        setRoles(filteredData)
+      } catch (error: any) {
+        toast({
+          title: 'Gagal mengambil data',
+          description: error.message,
+          variant: 'destructive',
+        })
+      }
+    }
+
+    fetchData()
+  }, [toast])
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="nama"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nama</FormLabel>
-                <FormControl>
-                  <Input placeholder="Masukkan nama" {...field} />
-                </FormControl>
-                <FormDescription />
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <FormField
             control={form.control}
             name="username"
@@ -144,33 +165,50 @@ export default function UserForm() {
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
-            name="email"
+            name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="Masukkan email" {...field} />
+                  <Input type="password" placeholder="Masukkan password" {...field} />
                 </FormControl>
                 <FormDescription />
                 <FormMessage />
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
-            name="tanggalLahir"
+            name="nama"
             render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Tanggal Lahir</FormLabel>
+              <FormItem>
+                <FormLabel>Nama</FormLabel>
+                <FormControl>
+                  <Input placeholder="Masukkan nama" {...field} />
+                </FormControl>
+                <FormDescription />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="tgl_lahir"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="inline">Tanggal Lahir</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
                         variant={'outline'}
                         className={cn(
-                          ' pl-3 text-left font-normal',
+                          ' pl-3 text-left font-normal mt-4 w-full',
                           !field.value && 'text-muted-foreground'
                         )}
                       >
@@ -228,7 +266,7 @@ export default function UserForm() {
 
           <FormField
             control={form.control}
-            name="noTelp"
+            name="no_telepon"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Nomor Telepon</FormLabel>
@@ -243,7 +281,22 @@ export default function UserForm() {
 
           <FormField
             control={form.control}
-            name="role"
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input type="email" placeholder="Masukkan email" {...field} />
+                </FormControl>
+                <FormDescription />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="role_id"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Role</FormLabel>

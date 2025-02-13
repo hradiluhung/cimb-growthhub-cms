@@ -1,7 +1,19 @@
 import LoginForm from '@/components/auth/login-form'
 import Logo from '@/components/common/logo'
+import { authOptions } from '@/lib/auth/auth-options'
+import { getSessionRole } from '@/lib/auth/session'
+import { getServerSession } from 'next-auth'
+import { redirect } from 'next/navigation'
 
-export default function LoggedInPage() {
+export default async function LoginPage() {
+  const role = await getSessionRole()
+
+  if (role === 'admin') {
+    redirect('/admin')
+  } else if (role === 'hr') {
+    redirect('/hr')
+  }
+
   return (
     <div className="flex items-center justify-center h-screen w-screen">
       <div className="h-full hidden md:block md:w-1/2 lg:w-1/3 relative">

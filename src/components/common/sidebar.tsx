@@ -4,6 +4,7 @@ import Logo from './logo'
 import Link from 'next/link'
 import { BookText, Home, LogOut, User, Users } from 'lucide-react'
 import { Button } from '../ui/button'
+import { signOut } from 'next-auth/react'
 
 const navItems = {
   admin: [
@@ -43,9 +44,9 @@ export default function Sidebar() {
   // TODO: Get user role from context
   const role: 'admin' | 'hr' = pathName.includes('admin') ? 'admin' : 'hr'
 
-  const onLogout = () => {
-    // TODO: Implement logout
-    router.push('/')
+  const onLogout = async () => {
+    await signOut()
+    router.refresh()
   }
 
   return (

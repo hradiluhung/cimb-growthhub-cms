@@ -187,14 +187,14 @@ export default function TrainingForm() {
             name="tanggal"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Tanggal Pelaskanaan</FormLabel>
+                <FormLabel className="inline">Tanggal Lahir</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
                         variant={'outline'}
                         className={cn(
-                          ' pl-3 text-left font-normal',
+                          ' pl-3 text-left font-normal mt-4 w-full',
                           !field.value && 'text-muted-foreground'
                         )}
                       >

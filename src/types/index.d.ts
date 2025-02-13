@@ -1,25 +1,43 @@
+declare type User = {
+  id: string
+  username: string
+  role_id: string
+  created_at: string
+  updated_at: string
+  role: Role
+  profile: Profile | null
+}
+
+declare type Role = {
+  id: string
+  name: string
+  created_at: string
+  updated_at: string
+}
+
 declare type Profile = {
   id: string
+  user_id: string
   nama: string
-  email: string
-  userId: string
-  tanggalLahir: string
+  tgl_lahir: string
   pekerjaan: string
   perusahaan: string
-  noTelp: string
-  role: 'hr' | 'karyawan' | 'trainee'
+  no_telepon: string
+  email: string
+  created_at: string
+  updated_at: string
 }
 
 declare type Training = {
   id: string
   nama: string
-  namaTrainer: string
+  nama_trainer: string
   kapasitas: number
   tipe: 'public' | 'private'
   deskripsi: string
   tanggal: string
   durasi: number
-  status: 'onprogress' | 'done'
+  status: 'on progress' | 'done' 
 }
 
 declare type Peserta = {
