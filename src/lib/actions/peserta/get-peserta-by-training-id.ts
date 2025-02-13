@@ -17,12 +17,15 @@ export async function getPesertaByTrainingId(id: string): Promise<Attendee[] | u
     },
   })
 
+  console.log("RESPONSE", response)
+
   if (response.ok) {
+    console.log("JALAN BOS")
     const result = await response.json()
 
     const attendees = result.data.attendees
     return attendees
   } else {
-    throw new Error('Gagal mengambil data peserta')
+    return undefined
   }
 }

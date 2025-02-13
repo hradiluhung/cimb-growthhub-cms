@@ -19,6 +19,7 @@ export default function TrainingDetail({ id }: { id: string }) {
 
   const fetchData = useCallback(async () => {
     const trainingData = await getTrainingById(id)
+
     const attendeesData = await getPesertaByTrainingId(trainingData.id)
 
     setTraining(trainingData)
@@ -88,7 +89,8 @@ export default function TrainingDetail({ id }: { id: string }) {
       </div>
     )
   }
-  if (training && attendees && !loading)
+
+  if (training && !loading)
     return (
       <div className="flex flex-col gap-8">
         <div className="flex gap-2">
@@ -131,30 +133,32 @@ export default function TrainingDetail({ id }: { id: string }) {
             {attendees === undefined ? (
               <div>Belum ada peserta mendaftar</div>
             ) : (
-              <div className="flex flex-col gap-8">
-                {attendees.some((p) => p.status === 'pending') && (
-                  <div className="flex flex-col gap-4">
-                    <h2>Membutuhkan persetujuan</h2>
-                    <div className="flex flex-col gap-2">
-                      {attendees
-                        .filter((p) => p.status === 'pending')
-                        .map((peserta) => (
-                          <TrainingPesertaPendingCard
-                            key={peserta.id}
-                            trainingId={training.id}
-                            peserta={peserta}
-                            onUpdate={fetchData}
-                          />
-                        ))}
+              attendees && (
+                <div className="flex flex-col gap-8">
+                  {attendees.some((p) => p.status === 'pending') && (
+                    <div className="flex flex-col gap-4">
+                      <h2>Membutuhkan persetujuan</h2>
+                      <div className="flex flex-col gap-2">
+                        {attendees
+                          .filter((p) => p.status === 'pending')
+                          .map((peserta) => (
+                            <TrainingPesertaPendingCard
+                              key={peserta.id}
+                              trainingId={training.id}
+                              peserta={peserta}
+                              onUpdate={fetchData}
+                            />
+                          ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-                <TrainingPesertaListDialog
-                  trainingId={training.id}
-                  peserta={attendees}
-                  onUpdate={fetchData}
-                />
-              </div>
+                  )}
+                  <TrainingPesertaListDialog
+                    trainingId={training.id}
+                    peserta={attendees}
+                    onUpdate={fetchData}
+                  />
+                </div>
+              )
             )}
           </div>
         </div>
