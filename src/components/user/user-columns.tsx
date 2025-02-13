@@ -3,7 +3,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import UserRoleBadge from './user-role-badge'
 import UserActions from './user-actions'
 
-export const userColumns: ColumnDef<User>[] = [
+export const userColumns = (onDeleted?: (id: string) => void): ColumnDef<User>[] => [
   {
     header: 'No',
     cell: (info) => info.row.index + 1,
@@ -54,7 +54,7 @@ export const userColumns: ColumnDef<User>[] = [
     cell: (cell) => {
       const user = cell.row.original
 
-      return <UserActions user={user} />
+      return <UserActions user={user} onDeleted={onDeleted} />
     },
   },
 ]

@@ -1,27 +1,28 @@
 'use server'
+
 import { getToken } from '@/lib/auth/session'
 import { BASE_URL } from '@/lib/constants'
 
-export default async function createUser({
+export default async function updateTraining({
+  id,
   nama,
-  tgl_lahir,
-  password,
-  pekerjaan,
-  perusahaan,
-  no_telepon,
-  email,
-  username,
-  role_id,
+  nama_trainer,
+  kapasitas,
+  tipe,
+  deskripsi,
+  tanggal,
+  durasi,
+  status
 }: {
+  id: string
   nama: string
-  password: string
-  tgl_lahir: Date
-  pekerjaan: string
-  perusahaan: string
-  no_telepon: string
-  email: string
-  username: string
-  role_id: string
+  nama_trainer: string
+  kapasitas: number
+  tipe: string
+  deskripsi: string
+  tanggal: Date
+  durasi: number
+  status: string
 }): Promise<{ success: boolean; message: string }> {
   const token = await getToken()
 
@@ -31,17 +32,16 @@ export default async function createUser({
 
   const data = JSON.stringify({
     nama,
-    tgl_lahir,
-    password,
-    pekerjaan,
-    perusahaan,
-    no_telepon,
-    email,
-    username,
-    role_id,
+    nama_trainer,
+    kapasitas,
+    tipe,
+    deskripsi,
+    tanggal,
+    durasi,
+    status,
   })
 
-  const response = await fetch(`${BASE_URL}/users`, {
+  const response = await fetch(`${BASE_URL}/trainings`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -58,6 +58,6 @@ export default async function createUser({
       message: result.message,
     }
   } else {
-    throw new Error('Gagal membuat user')
+    throw new Error('Gagal membuat training')
   }
 }

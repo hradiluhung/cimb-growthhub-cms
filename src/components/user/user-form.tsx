@@ -3,7 +3,7 @@ import { useToast } from '@/hooks/use-toast'
 import createUser from '@/lib/actions/users/create-user'
 import { cn, formatDate } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CalendarIcon } from 'lucide-react'
+import { CalendarIcon, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -23,6 +23,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { useEffect, useState } from 'react'
 import { getAllRoles } from '@/lib/actions/users/role/get-all-roles'
+import updateUser from '@/lib/actions/users/update-user'
 
 const userSchema = z.object({
   username: z.string().nonempty({
@@ -61,25 +62,47 @@ const userSchema = z.object({
     }),
 })
 
-export default function UserForm() {
+type UserFormData = z.infer<typeof userSchema>
+
+export default function UserForm({
+  type = 'add',
+  defaultValues,
+}: {
+  type?: 'add' | 'edit'
+  defaultValues?: User
+}) {
   const { toast } = useToast()
   const router = useRouter()
+  const [loading, setLoading] = useState(false)
 
-  const form = useForm<z.infer<typeof userSchema>>({
+  const form = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
     defaultValues: {
-      username: '',
+      username: defaultValues?.username || '',
       password: '',
-      nama: '',
-      tgl_lahir: undefined,
-      pekerjaan: '',
-      perusahaan: '',
-      no_telepon: '',
-      email: '',
-      role_id: undefined,
+      nama: defaultValues?.profile?.nama || '',
+      tgl_lahir:
+        (defaultValues?.profile?.tgl_lahir && new Date(defaultValues?.profile?.tgl_lahir)) ||
+        undefined,
+      pekerjaan: defaultValues?.profile?.pekerjaan || '',
+      perusahaan: defaultValues?.profile?.perusahaan || '',
+      no_telepon: defaultValues?.profile?.no_telepon || '',
+      email: defaultValues?.profile?.email || '',
+      role_id: defaultValues?.role_id || undefined,
     },
   })
+
   const [roles, setRoles] = useState<Role[]>([])
+
+  useEffect(() => {
+    if (defaultValues && type === 'edit') {
+      Object.entries(defaultValues).forEach(([key, value]) => {
+        if (value !== null && (typeof value === 'string' || value instanceof Date)) {
+          form.setValue(key as keyof UserFormData, value)
+        }
+      })
+    }
+  }, [defaultValues, form, type])
 
   const roleOptions = roles.map((role) => ({
     label:
@@ -89,16 +112,11 @@ export default function UserForm() {
     value: role.id,
   }))
 
-  async function onSubmit(values: z.infer<typeof userSchema>) {
+  async function onSubmit(values: UserFormData) {
     try {
-      const { nama, tgl_lahir, pekerjaan, perusahaan, no_telepon, email, username, role_id, password } =
-        values
-
-      console.log('values', values)
-
-      const { success, message } = await createUser({
+      setLoading(true)
+      const {
         nama,
-        password,
         tgl_lahir,
         pekerjaan,
         perusahaan,
@@ -106,11 +124,38 @@ export default function UserForm() {
         email,
         username,
         role_id,
-      })
+        password,
+      } = values
+
+      const { success, message } =
+        type === 'add'
+          ? await createUser({
+              nama,
+              password,
+              tgl_lahir,
+              pekerjaan,
+              perusahaan,
+              no_telepon,
+              email,
+              username,
+              role_id,
+            })
+          : await updateUser({
+              id: defaultValues?.id ?? '',
+              nama,
+              password,
+              tgl_lahir,
+              pekerjaan,
+              perusahaan,
+              no_telepon,
+              email,
+              username,
+              role_id,
+            })
 
       if (success) {
         toast({
-          title: 'Berhasil',
+          title: `${type === 'add' ? 'Berhasil menambahkan' : 'Berhasil mengubah'} user`,
           description: message,
         })
 
@@ -119,12 +164,13 @@ export default function UserForm() {
         throw new Error(message)
       }
     } catch (error: any) {
-      console.log(error.message)
       toast({
         title: 'Gagal',
         description: error.message,
         variant: 'destructive',
       })
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -133,7 +179,6 @@ export default function UserForm() {
       try {
         const data = await getAllRoles()
         const filteredData = data.filter((role) => role.name !== 'admin')
-
         setRoles(filteredData)
       } catch (error: any) {
         toast({
@@ -158,7 +203,7 @@ export default function UserForm() {
               <FormItem>
                 <FormLabel>Username</FormLabel>
                 <FormControl>
-                  <Input placeholder="Masukkan username" {...field} />
+                  <Input placeholder="Masukkan username" {...field} disabled={type === 'edit'} />
                 </FormControl>
                 <FormDescription />
                 <FormMessage />
@@ -171,11 +216,17 @@ export default function UserForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>{type === 'edit' ? 'New Password' : 'Password'}</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="Masukkan password" {...field} />
+                  <Input
+                    type="password"
+                    placeholder={type === 'edit' ? 'Masukkan password baru' : 'Masukkan password'}
+                    {...field}
+                  />
                 </FormControl>
-                <FormDescription />
+                <FormDescription>
+                  {type === 'edit' && 'Biarkan kosong jika tidak ingin mengubah password'}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -324,7 +375,10 @@ export default function UserForm() {
           <Button type="button" onClick={() => form.reset()} variant="secondary">
             Reset
           </Button>
-          <Button type="submit">Simpan</Button>
+          <Button type="submit" disabled={loading} className="flex items-center gap-1">
+            {loading && <Loader2 className="animate-spin size-5" />}
+            {type === 'add' ? 'Simpan' : 'Update'}
+          </Button>
         </div>
       </form>
     </Form>

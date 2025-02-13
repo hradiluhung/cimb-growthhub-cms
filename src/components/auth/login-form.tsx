@@ -50,13 +50,17 @@ export default function LoginForm() {
         redirect: false,
       })
 
-      console.log(response)
-
       if (response?.ok) {
         router.refresh()
         toast({
           title: 'Berhasil login',
           description: 'Selamat datang di aplikasi',
+        })
+      } else {
+        toast({
+          title: 'Gagal login',
+          description: 'Username atau password salah',
+          variant: 'destructive',
         })
       }
     } catch (error: any) {

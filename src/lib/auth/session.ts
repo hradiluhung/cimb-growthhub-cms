@@ -18,3 +18,9 @@ export async function getToken() {
 
   return session?.user.token
 }
+
+export async function getUserSession() {
+  const session = await getServerSession(authOptions)
+
+  return session?.user
+}

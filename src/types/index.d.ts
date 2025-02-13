@@ -33,21 +33,22 @@ declare type Training = {
   nama: string
   nama_trainer: string
   kapasitas: number
+  kapasitas_tersisa: number
   tipe: 'public' | 'private'
   deskripsi: string
   tanggal: string
   durasi: number
-  status: 'on progress' | 'done' 
+  status: 'on progress' | 'done'
 }
 
-declare type Peserta = {
+declare type Attendee = {
   id: string
-  userId: string
-  trainingId: string
-  nama: string
-  pekerjaan: string
-  perusahaan: string
-  role: 'karyawan' | 'trainee'
+  user_id: string
+  training_id: string
   status: 'pending' | 'approved' | 'rejected'
-  tanggalDaftar: string
+  tgl_daftar: string
+  created_at: string
+  updated_at: string
+  user: User
 }
+

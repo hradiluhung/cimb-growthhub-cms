@@ -1,43 +1,66 @@
-import React from 'react'
-import TrainingStatCard from '../training/training-stat-card'
-import { formatDate } from '@/lib/utils'
-import Link from 'next/link'
+'use client'
 import { ArrowRight } from 'lucide-react'
+import Link from 'next/link'
 import TrainingCard from '../training/training-card'
+import TrainingStatCard from '../training/training-stat-card'
+import { useEffect, useState } from 'react'
+import { getAllTrainings } from '@/lib/actions/training/get-all-trainings'
+import { useToast } from '@/hooks/use-toast'
+import { Skeleton } from '../ui/skeleton'
 
 export default function HRDashboardTrainings() {
-  const trainings: Training[] = [
-    {
-      id: '1e7b1d9e-8f3d-4c3b-9b1e-1d9e8f3d4c3b',
-      nama: 'React Basics',
-      nama_trainer: 'John Doe',
-      kapasitas: 30,
-      tipe: 'public',
-      deskripsi: 'Introduction to React',
-      tanggal: '2023-10-01',
-      durasi: 3,
-      status: 'done',
-    },
-    {
-      id: '2a7b1d9e-8f3d-4c3b-9b1e-2d9e8f3d4c3b',
-      nama: 'Advanced TypeScript',
-      nama_trainer: 'Jane Smith',
-      kapasitas: 20,
-      tipe: 'private',
-      deskripsi: 'Deep dive into TypeScript',
-      tanggal: '2023-10-05',
-      durasi: 2,
-      status: 'on progress',
-    },
-  ]
+  const { toast } = useToast()
+  const [loading, setLoading] = useState(true)
+  const [totalTrainings, setTotalTrainings] = useState({
+    total: 0,
+    onprogress: 0,
+    completed: 0,
+  })
+  const [latestTrainings, setLatestTrainings] = useState<Training[]>([])
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true)
+        const trainings = await getAllTrainings()
+
+        const totalTraining = trainings.length
+        const onprogress = trainings.filter((training) => training.status === 'on progress').length
+        const completed = trainings.filter((training) => training.status === 'done').length
+
+        setTotalTrainings({ total: totalTraining, onprogress, completed })
+
+        const latest = trainings.slice(0, 2)
+        setLatestTrainings(latest)
+      } catch (error: any) {
+        toast({
+          title: 'Gagal mengambil data',
+          description: error.message,
+          variant: 'destructive',
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [toast])
 
   return (
     <div className="flex gap-8 items-stretch">
       <div className="flex flex-col gap-4">
         <h2 className="font-semibold text-lg text-primary">Statistik Training</h2>
-        <Link href="hr/trainings">
-          <TrainingStatCard total={50} onprogress={10} completed={40} />
-        </Link>
+        {loading ? (
+          <Skeleton className="h-40 w-full md:w-64 lg:w-72" />
+        ) : (
+          <Link href="hr/trainings">
+            <TrainingStatCard
+              total={totalTrainings.total}
+              onprogress={totalTrainings.onprogress}
+              completed={totalTrainings.completed}
+            />
+          </Link>
+        )}
       </div>
       <div className="flex-1 flex flex-col gap-4">
         <div className="flex items-center justify-between">
@@ -50,11 +73,18 @@ export default function HRDashboardTrainings() {
           </Link>
         </div>
         <div className="flex gap-4 flex-1">
-          {trainings.map((training, index) => (
-            <Link key={index} className="flex-1" href={`hr/trainings/${training.id}`}>
-              <TrainingCard training={training} />
-            </Link>
-          ))}
+          {loading ? (
+            <>
+              <Skeleton className="h-40 w-full" />
+              <Skeleton className="h-40 w-full" />
+            </>
+          ) : (
+            latestTrainings.map((training, index) => (
+              <Link key={index} className="flex-1" href={`hr/trainings/${training.id}`}>
+                <TrainingCard training={training} />
+              </Link>
+            ))
+          )}
         </div>
       </div>
     </div>

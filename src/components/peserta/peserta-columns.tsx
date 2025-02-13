@@ -6,32 +6,32 @@ import PesertaStatusBadge from './peserta-status-badge'
 import { formatDate } from '@/lib/utils'
 import PesertaActions from './peserta-actions'
 
-export const pesertaColumns: ColumnDef<Peserta>[] = [
+export const pesertaColumns = (trainingId: string, onUpdate: () => void): ColumnDef<Attendee>[] => [
   {
     header: 'No',
     cell: (info) => info.row.index + 1,
   },
   {
-    accessorKey: 'nama',
+    accessorKey: 'user.profile.nama',
     header: 'Nama',
   },
   {
-    accessorKey: 'pekerjaan',
     header: 'Pekerjaan',
     cell: (cell) => {
-      const user = cell.row.original
+      const user = cell.row.original.user.profile
+
       return (
         <div>
-          <p>{user.pekerjaan}</p>
-          <p className="text-gray-500 text-sm">{user.perusahaan}</p>
+          <p>{user?.pekerjaan}</p>
+          <p className="text-gray-500 text-sm">{user?.perusahaan}</p>
         </div>
       )
     },
   },
   {
-    accessorKey: 'role',
+    accessorKey: 'user.role.name',
     header: 'Role',
-    cell: ({ getValue }) => <PesertaRoleBadge role={getValue() as 'karyawan' | 'trainee'} />,
+    cell: ({ getValue }) => <PesertaRoleBadge role={getValue() as 'employee' | 'trainee'} />,
   },
   {
     accessorKey: 'status',
@@ -41,7 +41,7 @@ export const pesertaColumns: ColumnDef<Peserta>[] = [
     ),
   },
   {
-    accessorKey: 'tanggalDaftar',
+    accessorKey: 'tgl_daftar',
     header: 'Tanggal Daftar',
     cell: ({ getValue }) => <span>{formatDate(new Date(getValue() as string))}</span>,
   },
@@ -50,7 +50,7 @@ export const pesertaColumns: ColumnDef<Peserta>[] = [
     cell: (cell) => {
       const peserta = cell.row.original
 
-      return <PesertaActions peserta={peserta} />
+      return <PesertaActions trainingId={trainingId} peserta={peserta} onUpdate={onUpdate} />
     },
   },
 ]

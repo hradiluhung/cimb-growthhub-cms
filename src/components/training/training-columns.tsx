@@ -6,7 +6,7 @@ import TrainingStatusBadge from './training-status-badge'
 import TrainingTypeBadge from './training-type-badge'
 import TrainingActions from './training-actions'
 
-export const trainingColumns: ColumnDef<Training>[] = [
+export const trainingColumns = (onDeleted?: (id: string) => void): ColumnDef<Training>[] => [
   {
     header: 'No',
     cell: (info) => info.row.index + 1,
@@ -54,7 +54,7 @@ export const trainingColumns: ColumnDef<Training>[] = [
     header: 'Aksi',
     cell: (cell) => {
       const training = cell.row.original
-      return <TrainingActions training={training} />
+      return <TrainingActions training={training} onDeleted={onDeleted}/>
     },
   },
 ]

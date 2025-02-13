@@ -15,6 +15,10 @@ export default function UserTable() {
   const [filteredUsers, setFilteredUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
 
+  function onDeleted(id: string) {
+    setFilteredUsers((prev) => prev.filter((user) => user.id !== id))
+  }
+
   useEffect(() => {
     async function fetchData() {
       try {
@@ -60,9 +64,9 @@ export default function UserTable() {
         />
       </div>
       {loading ? (
-        <DataTable.Skeleton columns={userColumns} rows={10} />
+        <DataTable.Skeleton columns={userColumns()} rows={10} />
       ) : (
-        <DataTable columns={userColumns} data={filteredUsers} />
+        <DataTable columns={userColumns(onDeleted)} data={filteredUsers} />
       )}
     </div>
   )

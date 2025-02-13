@@ -5,17 +5,45 @@ import SwitchModeButton from '../common/switch-mode-button'
 import { DataTable } from '../common/data-table'
 import { trainingColumns } from './training-columns'
 import TrainingGrid from './training-grid'
+import { useToast } from '@/hooks/use-toast'
+import { getAllTrainings } from '@/lib/actions/training/get-all-trainings'
 
 export default function TrainingList() {
+  const { toast } = useToast()
   const [searchKeyword, setSearchKeyword] = useState('')
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
-  const [filteredData, setFilteredData] = useState<Training[]>([])
+  const [trainings, setTrainings] = useState<Training[]>([])
+  const [filteredTrainings, setFilteredTrainings] = useState<Training[]>([])
+  const [loading, setLoading] = useState(true)
 
-  //   TODO: Fetch data from API
-  const trainings: Training[] = useMemo(() => [], [])
+  function onDeleted(id: string) {
+    setFilteredTrainings((prev) => prev.filter((training) => training.id !== id))
+  }
 
   useEffect(() => {
-    setFilteredData(
+    async function fetchData() {
+      try {
+        setLoading(true)
+        const trainings = await getAllTrainings()
+
+        setTrainings(trainings)
+        setFilteredTrainings(trainings)
+      } catch (error: any) {
+        toast({
+          title: 'Gagal mengambil data',
+          description: error.message,
+          variant: 'destructive',
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [toast])
+
+  useEffect(() => {
+    setFilteredTrainings(
       trainings.filter((training) =>
         training.nama.toLowerCase().includes(searchKeyword.toLowerCase())
       )
@@ -33,9 +61,11 @@ export default function TrainingList() {
         <SwitchModeButton viewMode={viewMode} setViewMode={setViewMode} />
       </div>
       {viewMode === 'grid' ? (
-        <TrainingGrid trainings={filteredData} />
+        <TrainingGrid trainings={filteredTrainings} />
+      ) : loading ? (
+        <DataTable.Skeleton columns={trainingColumns()} rows={10} />
       ) : (
-        <DataTable columns={trainingColumns} data={filteredData} />
+        <DataTable columns={trainingColumns(onDeleted)} data={filteredTrainings} />
       )}
     </div>
   )

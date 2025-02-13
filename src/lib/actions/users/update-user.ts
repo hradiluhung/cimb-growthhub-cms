@@ -2,7 +2,8 @@
 import { getToken } from '@/lib/auth/session'
 import { BASE_URL } from '@/lib/constants'
 
-export default async function createUser({
+export default async function updateUser({
+  id,
   nama,
   tgl_lahir,
   password,
@@ -13,6 +14,7 @@ export default async function createUser({
   username,
   role_id,
 }: {
+  id: string
   nama: string
   password: string
   tgl_lahir: Date
@@ -41,8 +43,8 @@ export default async function createUser({
     role_id,
   })
 
-  const response = await fetch(`${BASE_URL}/users`, {
-    method: 'POST',
+  const response = await fetch(`${BASE_URL}/users/${id}`, {
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
@@ -58,6 +60,6 @@ export default async function createUser({
       message: result.message,
     }
   } else {
-    throw new Error('Gagal membuat user')
+    throw new Error(response.statusText)
   }
 }
