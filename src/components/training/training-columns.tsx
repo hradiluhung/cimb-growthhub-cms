@@ -16,7 +16,7 @@ export const trainingColumns: ColumnDef<Training>[] = [
     header: 'Nama',
   },
   {
-    accessorKey: 'namaTrainer',
+    accessorKey: 'nama_trainer',
     header: 'Trainer',
   },
   {

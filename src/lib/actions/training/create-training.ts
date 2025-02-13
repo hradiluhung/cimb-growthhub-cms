@@ -2,7 +2,7 @@
 
 export default async function createTraining({
   nama,
-  namaTrainer,
+  nama_trainer,
   kapasitas,
   tipe,
   deskripsi,
@@ -10,7 +10,7 @@ export default async function createTraining({
   durasi,
 }: {
   nama: string
-  namaTrainer: string
+  nama_trainer: string
   kapasitas: number
   tipe: string
   deskripsi: string
@@ -18,7 +18,7 @@ export default async function createTraining({
   durasi: number
 }) {
   // TODO: Implement create user
-  console.log(nama, namaTrainer, kapasitas, tipe, deskripsi, tanggal, durasi)
+  console.log(nama, nama_trainer, kapasitas, tipe, deskripsi, tanggal, durasi)
 
   return 'User created'
 }

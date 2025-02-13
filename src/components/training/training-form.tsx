@@ -28,7 +28,7 @@ const trainingSchema = z.object({
   nama: z.string().nonempty({
     message: 'Nama tidak boleh kosong',
   }),
-  namaTrainer: z.string().nonempty({
+  nama_trainer: z.string().nonempty({
     message: 'Nama Trainer tidak boleh kosong',
   }),
   kapasitas: z.number().int().positive({
@@ -60,7 +60,7 @@ export default function TrainingForm() {
     resolver: zodResolver(trainingSchema),
     defaultValues: {
       nama: '',
-      namaTrainer: '',
+      nama_trainer: '',
       kapasitas: 0,
       tipe: undefined,
       deskripsi: '',
@@ -76,11 +76,11 @@ export default function TrainingForm() {
 
   async function onSubmit(values: z.infer<typeof trainingSchema>) {
     try {
-      const { nama, namaTrainer, kapasitas, tipe, deskripsi, tanggal, durasi } = values
+      const { nama, nama_trainer, kapasitas, tipe, deskripsi, tanggal, durasi } = values
 
       const message = await createTraining({
         nama,
-        namaTrainer,
+        nama_trainer,
         kapasitas,
         tipe,
         deskripsi,
@@ -123,7 +123,7 @@ export default function TrainingForm() {
           />
           <FormField
             control={form.control}
-            name="namaTrainer"
+            name="nama_trainer"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Nama Trainer</FormLabel>

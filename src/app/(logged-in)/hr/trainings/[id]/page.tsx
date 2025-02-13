@@ -14,7 +14,7 @@ export default async function TrainingDetailPage({ params }: { params: Promise<{
   const training: Training = {
     id: '1e7b1d9e-8f3d-4c3b-9b1e-1d9e8f3d4c3b',
     nama: 'React Basics',
-    namaTrainer: 'John Doe',
+    nama_trainer: 'John Doe',
     kapasitas: 30,
     tipe: 'public',
     deskripsi:
@@ -92,7 +92,7 @@ export default async function TrainingDetailPage({ params }: { params: Promise<{
           <h1 className="font-bold text-2xl text-primary">{training.nama}</h1>
           <div className="flex items-center gap-1 text-gray-500">
             <Mic2 className="size-4" />
-            <p className="text-sm">{training.namaTrainer}</p>
+            <p className="text-sm">{training.nama_trainer}</p>
           </div>
         </div>
       </div>

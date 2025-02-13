@@ -10,7 +10,7 @@ export default function HRDashboardTrainings() {
     {
       id: '1e7b1d9e-8f3d-4c3b-9b1e-1d9e8f3d4c3b',
       nama: 'React Basics',
-      namaTrainer: 'John Doe',
+      nama_trainer: 'John Doe',
       kapasitas: 30,
       tipe: 'public',
       deskripsi: 'Introduction to React',
@@ -21,13 +21,13 @@ export default function HRDashboardTrainings() {
     {
       id: '2a7b1d9e-8f3d-4c3b-9b1e-2d9e8f3d4c3b',
       nama: 'Advanced TypeScript',
-      namaTrainer: 'Jane Smith',
+      nama_trainer: 'Jane Smith',
       kapasitas: 20,
       tipe: 'private',
       deskripsi: 'Deep dive into TypeScript',
       tanggal: '2023-10-05',
       durasi: 2,
-      status: 'onprogress',
+      status: 'on progress',
     },
   ]
 
