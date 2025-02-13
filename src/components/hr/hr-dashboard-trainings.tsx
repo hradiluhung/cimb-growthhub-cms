@@ -52,7 +52,7 @@ export default function HRDashboardTrainings() {
         <div className="flex gap-4 flex-1">
           {trainings.map((training, index) => (
             <Link key={index} className="flex-1" href={`hr/trainings/${training.id}`}>
-              <TrainingCard key={index} training={training} />
+              <TrainingCard training={training} />
             </Link>
           ))}
         </div>

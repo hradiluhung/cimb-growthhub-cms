@@ -12,7 +12,7 @@ export default function TrainingActions({ training }: { training: Training }) {
   return (
     <div className="flex items-center gap-1">
       <Button size="sm" variant="secondary" asChild>
-        <Link href={`training/${training.id}`}>
+        <Link href={`trainings/${training.id}`}>
           <EyeIcon className="size-4" />
         </Link>
       </Button>

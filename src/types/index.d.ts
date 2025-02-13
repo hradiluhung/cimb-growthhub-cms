@@ -21,3 +21,15 @@ declare type Training = {
   durasi: number
   status: 'onprogress' | 'done'
 }
+
+declare type Peserta = {
+  id: string
+  userId: string
+  trainingId: string
+  nama: string
+  pekerjaan: string
+  perusahaan: string
+  role: 'karyawan' | 'trainee'
+  status: 'pending' | 'approved' | 'rejected'
+  tanggalDaftar: string
+}

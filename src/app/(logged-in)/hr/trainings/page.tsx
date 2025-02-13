@@ -5,6 +5,7 @@ import Link from 'next/link'
 import React from 'react'
 
 export default function HRTrainingsPage() {
+  
   return (
     <div className="flex flex-col gap-8">
       <div className="flex justify-between items-center">

@@ -1,14 +1,11 @@
 'use client'
 import { useToast } from '@/hooks/use-toast'
-import createUser from '@/lib/actions/users/create-user'
-import { cn, formatDate } from '@/lib/utils'
+import createTraining from '@/lib/actions/training/create-training'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CalendarIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { Button } from '../ui/button'
-import { Calendar } from '../ui/calendar'
 import {
   Form,
   FormControl,
@@ -19,82 +16,76 @@ import {
   FormMessage,
 } from '../ui/form'
 import { Input } from '../ui/input'
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
+import { Textarea } from '../ui/textarea'
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
+import { Button } from '../ui/button'
+import { cn, formatDate } from '@/lib/utils'
+import { CalendarIcon } from 'lucide-react'
+import { Calendar } from '../ui/calendar'
 
-const userSchema = z.object({
+const trainingSchema = z.object({
   nama: z.string().nonempty({
     message: 'Nama tidak boleh kosong',
   }),
-  tanggalLahir: z.date({
-    required_error: 'Tanggal lahir tidak boleh kosong',
+  namaTrainer: z.string().nonempty({
+    message: 'Nama Trainer tidak boleh kosong',
   }),
-  pekerjaan: z.string().nonempty({
-    message: 'Pekerjaan tidak boleh kosong',
+  kapasitas: z.number().int().positive({
+    message: 'Kapasitas harus berupa angka positif',
   }),
-  perusahaan: z.string().nonempty({
-    message: 'Perusahaan tidak boleh kosong',
-  }),
-  noTelp: z
-    .string()
-    .nonempty({
-      message: 'Nomor telepon tidak boleh kosong',
-    })
-    .refine((val) => /^\d+$/.test(val), {
-      message: 'Nomor telepon hanya boleh berisi angka',
-    }),
-  email: z.string().email({
-    message: 'Email tidak valid',
-  }),
-  username: z.string().nonempty({
-    message: 'Username harus diisi',
-  }),
-  role: z
-    .enum(['hr', 'karyawan', 'trainee'], {
-      required_error: 'Role tidak boleh kosong',
+  tipe: z
+    .enum(['private', 'public'], {
+      required_error: 'Tipe tidak boleh kosong',
     })
     .refine((val) => val !== undefined, {
-      message: 'Role tidak boleh kosong',
+      message: 'Tipe tidak boleh kosong',
     }),
+  deskripsi: z.string().nonempty({
+    message: 'Deskripsi tidak boleh kosong',
+  }),
+  tanggal: z.date({
+    required_error: 'Tanggal lahir tidak boleh kosong',
+  }),
+  durasi: z.number().int().positive({
+    message: 'Durasi harus berupa angka positif',
+  }),
 })
 
-export default function UserForm() {
+export default function TrainingForm() {
   const { toast } = useToast()
   const router = useRouter()
 
-  const form = useForm<z.infer<typeof userSchema>>({
-    resolver: zodResolver(userSchema),
+  const form = useForm<z.infer<typeof trainingSchema>>({
+    resolver: zodResolver(trainingSchema),
     defaultValues: {
       nama: '',
-      tanggalLahir: undefined,
-      pekerjaan: '',
-      perusahaan: '',
-      noTelp: '',
-      email: '',
-      username: '',
-      role: undefined,
+      namaTrainer: '',
+      kapasitas: 0,
+      tipe: undefined,
+      deskripsi: '',
+      tanggal: undefined,
+      durasi: 0,
     },
   })
 
-  const roleOptions = [
-    { label: 'HR', value: 'hr' },
-    { label: 'Karyawan', value: 'karyawan' },
-    { label: 'Trainee', value: 'trainee' },
+  const tipeOptions = [
+    { label: 'Private', value: 'private' },
+    { label: 'Public', value: 'public' },
   ]
 
-  async function onSubmit(values: z.infer<typeof userSchema>) {
+  async function onSubmit(values: z.infer<typeof trainingSchema>) {
     try {
-      const { nama, tanggalLahir, pekerjaan, perusahaan, noTelp, email, username, role } = values
+      const { nama, namaTrainer, kapasitas, tipe, deskripsi, tanggal, durasi } = values
 
-      const message = await createUser({
+      const message = await createTraining({
         nama,
-        tanggalLahir,
-        pekerjaan,
-        perusahaan,
-        noTelp,
-        email,
-        username,
-        role,
+        namaTrainer,
+        kapasitas,
+        tipe,
+        deskripsi,
+        tanggal,
+        durasi,
       })
 
       toast({
@@ -102,7 +93,7 @@ export default function UserForm() {
         description: message,
       })
 
-      router.push('/admin/users')
+      router.push('/hr/trainings')
     } catch (error: any) {
       toast({
         title: 'Gagal',
@@ -132,38 +123,71 @@ export default function UserForm() {
           />
           <FormField
             control={form.control}
-            name="username"
+            name="namaTrainer"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Username</FormLabel>
+                <FormLabel>Nama Trainer</FormLabel>
                 <FormControl>
-                  <Input placeholder="Masukkan username" {...field} />
+                  <Input placeholder="Masukkan nama trainer" {...field} />
                 </FormControl>
                 <FormDescription />
                 <FormMessage />
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
-            name="email"
+            name="kapasitas"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Kapasitas</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="Masukkan email" {...field} />
+                  <Input
+                    type="number"
+                    placeholder="Masukkan kapasitas"
+                    {...field}
+                    onChange={(event) => field.onChange(+event.target.value)}
+                  />
                 </FormControl>
                 <FormDescription />
                 <FormMessage />
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
-            name="tanggalLahir"
+            name="tipe"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Role</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih tipe" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {tipeOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormDescription />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="tanggal"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Tanggal Lahir</FormLabel>
+                <FormLabel>Tanggal Pelaskanaan</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -198,69 +222,36 @@ export default function UserForm() {
           />
           <FormField
             control={form.control}
-            name="pekerjaan"
+            name="durasi"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Pekerjaan</FormLabel>
+                <FormLabel>Durasi (menit)</FormLabel>
                 <FormControl>
-                  <Input placeholder="Masukkan pekerjaan" {...field} />
+                  <Input
+                    type="number"
+                    placeholder="Masukkan durasi"
+                    {...field}
+                    onChange={(event) => field.onChange(+event.target.value)}
+                  />
                 </FormControl>
                 <FormDescription />
                 <FormMessage />
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
-            name="perusahaan"
+            name="deskripsi"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Perusahaan</FormLabel>
+                <FormLabel>Deskripsi</FormLabel>
                 <FormControl>
-                  <Input placeholder="Masukkan perusahaan" {...field} />
+                  <Textarea
+                    className="h-28 resize-none"
+                    placeholder="Masukkan deskripsi"
+                    {...field}
+                  />
                 </FormControl>
-                <FormDescription />
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="noTelp"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nomor Telepon</FormLabel>
-                <FormControl>
-                  <Input placeholder="Masukkan nomor telepon" {...field} />
-                </FormControl>
-                <FormDescription />
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="role"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Role</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih role" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {roleOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
                 <FormDescription />
                 <FormMessage />
               </FormItem>

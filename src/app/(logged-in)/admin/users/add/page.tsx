@@ -11,7 +11,9 @@ export default function AddUserPage() {
           <p>Tambahkan user baru untuk mendapatkan akses ke aplikasi.</p>
         </div>
       </div>
-      <UserForm />
+      <div className="md:px-8 lg:px-12">
+        <UserForm />
+      </div>
     </div>
   )
 }

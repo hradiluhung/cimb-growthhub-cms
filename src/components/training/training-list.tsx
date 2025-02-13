@@ -4,6 +4,7 @@ import SearchBar from '../common/search-bar'
 import SwitchModeButton from '../common/switch-mode-button'
 import { DataTable } from '../common/data-table'
 import { trainingColumns } from './training-columns'
+import TrainingGrid from './training-grid'
 
 export default function TrainingList() {
   const [searchKeyword, setSearchKeyword] = useState('')
@@ -91,7 +92,7 @@ export default function TrainingList() {
         <SwitchModeButton viewMode={viewMode} setViewMode={setViewMode} />
       </div>
       {viewMode === 'grid' ? (
-        <div></div>
+        <TrainingGrid trainings={filteredData} />
       ) : (
         <DataTable columns={trainingColumns} data={filteredData} />
       )}
